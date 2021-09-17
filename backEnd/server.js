@@ -15,14 +15,23 @@ sockets.on('connection', (socket) => {
 
   const name = 'Player_' + socket.id.substr(0, 5);
   game.players[socket.id] = { name };
+  sendMessage(game.players[socket.id], 'conectado');
   refreshPlayers();
 
   socket.on('disconnect', () => {
+    sendMessage(game.players[socket.id], 'desconectado');
     delete game.players[socket.id];
     refreshPlayers();
   })
+
+  socket.on('SendMesage', (message) => {
+    sendMessage(game.players[socket.id], message);
+  })
 })
 
+const sendMessage = (player, message) => {
+  sockets.emit('ReceiveMessage', `${player.name}: ${message}`);
+};
 
 const refreshPlayers = () => {
   sockets.emit('PlayersRefresh', game.players);
